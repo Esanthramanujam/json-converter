@@ -21,6 +21,8 @@ export interface RouteDef {
   h1: string;
   /** One or two sentences rendered directly under the H1. */
   intro: string;
+  /** Shown in the empty output pane before anything has been converted. */
+  emptyHint: string;
   /** Body copy paragraphs. Unique per route - no boilerplate reuse. */
   body: string[];
   faq: FaqItem[];
@@ -38,8 +40,10 @@ export const ROUTES: RouteDef[] = [
     autoDetect: true,
     title: 'JSON Unescape — Unescape Escaped JSON Strings Online',
     description:
-      'Paste an escaped or stringified JSON string and get clean, formatted JSON back. Handles double-escaped payloads, \\uXXXX, and JSON buried in log lines. Runs entirely in your browser.',
+      'Paste an escaped or stringified JSON string and get clean, formatted JSON back. Handles double-escaped payloads and JSON buried in log lines. Runs in your browser.',
     h1: 'Unescape JSON',
+    emptyHint:
+      'Paste an escaped JSON string on the left — or drop a file — and the clean, formatted JSON appears here.',
     intro:
       'Turn an escaped JSON string — the kind that comes out of a log file, a database column or a nested API response — back into readable, formatted JSON.',
     body: [
@@ -69,8 +73,10 @@ export const ROUTES: RouteDef[] = [
     autoDetect: false,
     title: 'JSON Stringify Online — Escape JSON to a String Literal',
     description:
-      'Convert JSON into an escaped string literal you can paste into code, a test fixture or a config field. Toggle the surrounding quotes and \\uXXXX escaping for non-ASCII characters.',
+      'Convert JSON into an escaped string literal for code, test fixtures or config fields. Toggle the surrounding quotes and \\uXXXX escaping for non-ASCII characters.',
     h1: 'JSON Stringify Online',
+    emptyHint:
+      'Paste JSON on the left and the escaped string literal — ready to embed in code — appears here.',
     intro:
       'Escape a JSON document into a single string literal — the same result as JSON.stringify() on the text, ready to embed in source code, a test fixture or a config value.',
     body: [
@@ -102,6 +108,8 @@ export const ROUTES: RouteDef[] = [
     description:
       'Format and validate JSON with 2-space, 4-space or tab indentation, alphabetical key sorting, a collapsible tree view and errors reported with the exact line and column.',
     h1: 'JSON Formatter and Validator',
+    emptyHint:
+      'Paste JSON on the left to format and validate it. Errors arrive with the exact line and column.',
     intro:
       'Pretty-print JSON with the indentation you actually use, validate it as you type, and read it in a collapsible tree instead of a wall of text.',
     body: [
@@ -133,6 +141,8 @@ export const ROUTES: RouteDef[] = [
     description:
       'Strip every byte of insignificant whitespace from JSON and see the size before and after. Useful for config values, environment variables and request bodies.',
     h1: 'JSON Minifier',
+    emptyHint:
+      'Paste JSON on the left and the whitespace-free version appears here, with the size shown below.',
     intro:
       'Remove all insignificant whitespace from a JSON document and watch the byte count drop in the status bar.',
     body: [
@@ -160,6 +170,8 @@ export const ROUTES: RouteDef[] = [
     description:
       'Paste NDJSON or JSON Lines — one document per line — and get a single valid JSON array back, formatted and ready to read in a tree view.',
     h1: 'NDJSON to JSON Array',
+    emptyHint:
+      'Paste NDJSON — one document per line — on the left and the combined JSON array appears here.',
     intro:
       'Convert newline-delimited JSON — one document per line, the format most log pipelines emit — into a single valid JSON array.',
     body: [
@@ -187,6 +199,8 @@ export const ROUTES: RouteDef[] = [
     description:
       'Repair broken JSON online: trailing commas, single-quoted strings, unquoted keys, Python None/True/False, comments and NaN. Every fix is listed so nothing changes silently.',
     h1: 'Fix Invalid JSON',
+    emptyHint:
+      'Paste broken JSON on the left. Turn on Lenient repair and every fix is listed before the result.',
     intro:
       'Repair the JSON that people actually paste — trailing commas, single quotes, unquoted keys, Python literals and comments — with every change listed so nothing happens behind your back.',
     body: [
@@ -214,10 +228,12 @@ export const ROUTES: RouteDef[] = [
     label: 'Double-escaped JSON',
     mode: 'unescape',
     autoDetect: true,
-    title: 'Double-Escaped JSON Decoder — Fix \\\\" and \\\\\\\\n Payloads',
+    title: 'Double-Escaped JSON Decoder — Unescape Twice-Escaped JSON',
     description:
       'Decode JSON that was stringified twice or more. Recursive unescaping with up to five passes, stopping at the first pass that yields valid JSON, with the pass count shown.',
     h1: 'Decode Double-Escaped JSON',
+    emptyHint:
+      'Paste a payload full of \\" and \\\\n on the left and the fully decoded JSON appears here.',
     intro:
       'Payloads that were stringified twice come out as \\\\" and \\\\\\\\n instead of readable JSON. This decodes them all the way down and tells you how deep it went.',
     body: [

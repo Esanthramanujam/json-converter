@@ -217,6 +217,7 @@ export default function App() {
       onRepair={() => patchOptions({ repair: true })}
       repairEnabled={safeOptions.repair}
       hasInput={input.trim().length > 0}
+      emptyHint={ACTIVE_ROUTE.emptyHint}
     />
   );
 

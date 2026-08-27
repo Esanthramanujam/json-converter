@@ -9,10 +9,10 @@ html.dark {
   color-scheme: dark;
 }
 
-html,
-body,
+/* The app fills the viewport; prerendered content scrolls in underneath it. */
 #root {
-  height: 100%;
+  height: 100dvh;
+  min-height: 460px;
 }
 
 body {
@@ -65,4 +65,107 @@ html.dark body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Prerendered content. Emitted as plain HTML by scripts/prerender.mjs so that
+   crawlers see real copy without executing JavaScript, and styled here rather
+   than with utility classes so it does not depend on Tailwind scanning a
+   build script.
+   ------------------------------------------------------------------------ */
+.seo {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+  line-height: 1.65;
+  font-size: 0.95rem;
+  color: #3d4450;
+}
+html.dark .seo {
+  color: #aab2c0;
+}
+.seo h1 {
+  font-size: 1.6rem;
+  line-height: 1.25;
+  font-weight: 650;
+  margin: 0 0 0.6rem;
+  color: #16191f;
+}
+.seo h2 {
+  font-size: 1.15rem;
+  font-weight: 620;
+  margin: 2.25rem 0 0.5rem;
+  color: #16191f;
+}
+.seo h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.25rem;
+  color: #16191f;
+}
+html.dark .seo h1,
+html.dark .seo h2,
+html.dark .seo h3 {
+  color: #e9ecf2;
+}
+.seo p {
+  margin: 0 0 0.9rem;
+}
+.seo .seo-intro {
+  font-size: 1.05rem;
+  color: #545c69;
+}
+html.dark .seo .seo-intro {
+  color: #9aa3b2;
+}
+.seo a {
+  color: #2f6fed;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+html.dark .seo a {
+  color: #7aa5ff;
+}
+.seo code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  background: #eef0f4;
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+html.dark .seo code {
+  background: #1c222c;
+}
+.seo-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0;
+  list-style: none;
+}
+.seo-nav li a {
+  display: inline-block;
+  border: 1px solid #e3e6ea;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.85rem;
+  text-decoration: none;
+  color: #3d4450;
+}
+html.dark .seo-nav li a {
+  border-color: #262d38;
+  color: #aab2c0;
+}
+.seo-nav li a:hover {
+  border-color: #2f6fed;
+  color: #2f6fed;
+}
+.seo-divider {
+  border: 0;
+  border-top: 1px solid #e3e6ea;
+  margin: 2.5rem 0 0;
+}
+html.dark .seo-divider {
+  border-top-color: #262d38;
 }

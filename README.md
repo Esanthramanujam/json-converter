@@ -20,11 +20,13 @@ npm run dev        # http://localhost:5173
 | Script | What it does |
 | --- | --- |
 | `npm run dev` | Vite dev server with HMR |
-| `npm run build` | Type-checks with `tsc --noEmit`, then builds to `dist/` |
+| `npm run build` | Type-checks, builds to `dist/`, then prerenders one static page per route |
 | `npm run preview` | Serves the production build locally |
 | `npm test` | Runs the Vitest unit suite once |
 | `npm run test:watch` | Vitest in watch mode |
 | `npm run typecheck` | Type-check only |
+| `npm run prerender` | Re-run the prerender step against an existing `dist/` |
+| `npm run verify:seo` | Audit the prerendered output (titles, meta, JSON-LD, links) |
 
 Stack: Vite 5, React 18, TypeScript (strict), Tailwind CSS 3, CodeMirror 6
 (`@uiw/react-codemirror` + `@codemirror/lang-json`).
@@ -154,6 +156,99 @@ Large inputs never block the UI:
 * the tree view is **virtualised** — only rows inside the viewport are mounted;
 * a spinner covers the output pane while a conversion is in flight;
 * above **5 MB** auto-conversion pauses and a **Convert** button appears.
+
+
+---
+
+## Pages and SEO
+
+The app ships as **seven static HTML pages**, one per search intent, rather than a
+single-page app behind one URL. Every route is a real file with its own title,
+meta description, canonical URL, social tags, JSON-LD and visible copy, so a
+crawler sees the full page without executing any JavaScript. Opening a route
+also preselects the matching conversion mode.
+
+| Route | Mode | Targets |
+| --- | --- | --- |
+| `/` | Unescape | json unescape, unescape json string |
+| `/json-stringify` | Stringify | json stringify online, json escape |
+| `/json-formatter` | Beautify | json formatter, json validator, pretty print json |
+| `/json-minify` | Minify | json minifier, compress json |
+| `/ndjson-to-json` | Beautify | ndjson to json, json lines converter |
+| `/json-repair` | Beautify | fix invalid json, trailing comma, single quotes |
+| `/double-escaped-json` | Unescape | double escaped json, escaped twice |
+
+`src/lib/routes.ts` is the single source of truth: it defines the path, the
+starting mode, the metadata and the copy, and is consumed both by the React app
+(`src/App.tsx`) and by the build script (`scripts/prerender.mjs`). Adding a page
+means adding one entry there — nothing else needs to change.
+
+### Build output
+
+`npm run build` runs `tsc --noEmit`, then `vite build`, then
+`scripts/prerender.mjs`, which writes:
+
+```
+dist/index.html                     /
+dist/json-stringify/index.html      /json-stringify
+dist/json-formatter/index.html      ...
+dist/sitemap.xml
+dist/robots.txt
+```
+
+Set the canonical origin at build time:
+
+```bash
+SITE_URL=https://your-domain.com npm run build
+```
+
+It defaults to the `SITE_URL` constant in `src/lib/routes.ts`.
+
+### Deploying
+
+The build is plain static files, so any static host works. `public/_headers`
+ships cache rules that Cloudflare Pages and Netlify both read (other hosts
+ignore the file): hashed assets are cached for a year as immutable, HTML always
+revalidates so a deploy is live immediately.
+
+**Cloudflare Pages** is the recommended host for this project: the free plan has
+unlimited bandwidth and unlimited static requests, allows commercial use, and
+includes a custom domain with automatic TLS. Build command `npm run build`,
+output directory `dist`.
+
+**Do not add an SPA catch-all rewrite** (`/* -> /index.html`). It would serve the
+root page's title and copy for every URL and undo the whole point of the
+prerender step. A 404 fallback is fine; a catch-all rewrite is not.
+
+#### Trailing slashes
+
+Static hosts disagree about how to serve `dist/foo/index.html`. Most serve it at
+`/foo`; some serve it at `/foo/` and redirect `/foo` to it. A canonical URL that
+the host then redirects wastes crawl budget, so the form is a build flag.
+
+The default omits the trailing slash. After the first deploy, check which form
+your host serves directly:
+
+```bash
+curl -sI https://your-domain.com/json-stringify | head -1
+```
+
+`200` means the default is correct. A `301`, `307` or `308` means rebuild with:
+
+```bash
+TRAILING_SLASH=1 SITE_URL=https://your-domain.com npm run build
+```
+
+The flag moves the canonical tag, `og:url`, the sitemap entries and the
+prerendered internal links together, so they never disagree.
+
+### Checking your work
+
+`npm run verify:seo` audits `dist/` and exits non-zero on anything that would
+hurt indexing: a title over 62 characters, a description outside 110–175, a
+missing canonical, more or fewer than one `<h1>`, invalid JSON-LD, fewer than
+220 words of crawlable copy, a broken asset path, or two pages sharing a title
+or description. Wire it into CI next to the unit tests.
 
 ---
 

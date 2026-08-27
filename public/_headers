@@ -1,0 +1,17 @@
+# Cache rules for Cloudflare Pages and Netlify (both read this file from the
+# publish directory; other hosts ignore it).
+
+# Hashed assets never change under the same name.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML must revalidate so a deploy is picked up immediately.
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

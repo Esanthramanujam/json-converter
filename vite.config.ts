@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: './',
+  // Absolute base so /json-stringify/index.html resolves /assets/... correctly.
+  base: '/',
   worker: { format: 'es' },
   test: {
     environment: 'node',

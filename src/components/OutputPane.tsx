@@ -22,6 +22,7 @@ interface OutputPaneProps {
   onRepair: () => void;
   repairEnabled: boolean;
   hasInput: boolean;
+  emptyHint: string;
 }
 
 export function OutputPane({
@@ -40,6 +41,7 @@ export function OutputPane({
   onRepair,
   repairEnabled,
   hasInput,
+  emptyHint,
 }: OutputPaneProps) {
   const treeReady = result.ok && result.value !== undefined && result.value !== null;
   const showEmptyState = !hasInput || (!result.output && !result.error);
@@ -136,10 +138,7 @@ export function OutputPane({
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Nothing converted yet
             </p>
-            <p className="max-w-xs text-xs text-slate-400 dark:text-slate-500">
-              Paste an escaped JSON string on the left — or drop a file — and the clean, formatted
-              JSON appears here.
-            </p>
+            <p className="max-w-xs text-xs text-slate-400 dark:text-slate-500">{emptyHint}</p>
           </div>
         ) : view === 'tree' && treeReady ? (
           <TreeView
