@@ -55,7 +55,7 @@ export function Toolbar({
     <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-slate-200 bg-white px-3 py-2 dark:border-slate-800 dark:bg-[#0f1218]">
       {/* The page's real <h1> lives in the prerendered copy below the app. */}
       <a
-        href="/"
+        href={import.meta.env.BASE_URL}
         aria-label="JSON Unescape home"
         className="mr-1 flex items-baseline gap-1.5 text-sm font-semibold text-slate-900 no-underline dark:text-slate-100"
       >

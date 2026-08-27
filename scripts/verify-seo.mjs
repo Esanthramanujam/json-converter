@@ -92,10 +92,13 @@ for (const route of routes) {
   console.log('  copy        ' + words + ' words');
   if (words < MIN_WORDS) fail(`thin content: ${words} words, want at least ${MIN_WORDS}`);
 
-  const assets = [...html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)].map((m) => m[1]);
+  // Asset URLs carry the deployment base path (/repo/assets/... on a GitHub
+  // Pages project site), so compare from the /assets/ segment onwards.
+  const assets = [...html.matchAll(/(?:src|href)="([^"]*\/assets\/[^"]+)"/g)].map((m) => m[1]);
   if (!assets.length) fail('no /assets/ references — check the Vite base path');
   for (const asset of assets) {
-    if (!fs.existsSync(path.join(distDir, asset))) fail('asset does not exist: ' + asset);
+    const relative = asset.slice(asset.indexOf('/assets/'));
+    if (!fs.existsSync(path.join(distDir, relative))) fail('asset does not exist: ' + asset);
   }
 
   const key = title + '||' + description;

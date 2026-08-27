@@ -260,8 +260,20 @@ export const ROUTES: RouteDef[] = [
 
 export const DEFAULT_ROUTE = ROUTES[0];
 
-/** Resolve a pathname to a route, tolerating trailing slashes and index.html. */
-export function routeForPath(pathname: string): RouteDef {
-  const normalised = pathname.replace(/index\.html$/, '').replace(/\/+$/, '') || '/';
+/**
+ * Resolve a pathname to a route, tolerating trailing slashes, index.html and a
+ * deployment base path such as /json-converter/ on GitHub Pages project sites.
+ */
+export function routeForPath(pathname: string, basePath = '/'): RouteDef {
+  let remainder = pathname.replace(/index\.html$/, '');
+  const base = basePath.replace(/\/+$/, '');
+  if (base && remainder.startsWith(base)) remainder = remainder.slice(base.length);
+  const normalised = remainder.replace(/\/+$/, '') || '/';
   return ROUTES.find((route) => route.path === normalised) ?? DEFAULT_ROUTE;
+}
+
+/** Build an href for a route that respects the deployment base path. */
+export function hrefFor(routePath: string, basePath = '/'): string {
+  const base = basePath.replace(/\/+$/, '');
+  return routePath === '/' ? `${base}/` : `${base}${routePath}`;
 }

@@ -112,7 +112,12 @@ function headTags(origin, siteName, route, routes) {
   ].join('\n    ');
 }
 
-function seoSection(route, routes) {
+function seoSection(route, routes, basePath) {
+  const href = (routePath) => {
+    const p = canonicalPath(routePath);
+    return p === '/' ? `${basePath}/` : `${basePath}${p}`;
+  };
+
   const paragraphs = route.body.map((text) => `<p>${escapeHtml(text)}</p>`).join('\n      ');
   const faq = route.faq
     .map((item) => `<h3>${escapeHtml(item.q)}</h3>\n      <p>${escapeHtml(item.a)}</p>`)
@@ -121,7 +126,7 @@ function seoSection(route, routes) {
     .filter((other) => other.path !== route.path)
     .map(
       (other) =>
-        `<li><a href="${canonicalPath(other.path)}">${escapeHtml(other.label)}</a></li>`,
+        `<li><a href="${href(other.path)}">${escapeHtml(other.label)}</a></li>`,
     )
     .join('\n        ');
 
@@ -139,12 +144,12 @@ function seoSection(route, routes) {
     </section>`;
 }
 
-function renderPage(template, origin, siteName, route, routes) {
+function renderPage(template, origin, siteName, route, routes, basePath) {
   let html = template;
   html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(route.title)}</title>`);
   html = html.replace(/\s*<meta name="description"[^>]*>/g, '');
   html = html.replace('</head>', `  ${headTags(origin, siteName, route, routes)}\n  </head>`);
-  html = html.replace('</body>', `  ${seoSection(route, routes)}\n  </body>`);
+  html = html.replace('</body>', `  ${seoSection(route, routes, basePath)}\n  </body>`);
   return html;
 }
 
@@ -168,7 +173,11 @@ async function main() {
   }
 
   const { ROUTES, SITE_URL, SITE_NAME } = await loadRoutes();
-  const origin = (process.env.SITE_URL ?? SITE_URL).replace(/\/+$/, '');
+  const siteUrl = (process.env.SITE_URL ?? SITE_URL).replace(/\/+$/, '');
+  const origin = siteUrl;
+  // GitHub Pages project sites live under /<repo>/. Default the base path to
+  // whatever path SITE_URL already carries so the two cannot disagree.
+  const basePath = (process.env.BASE_PATH ?? new URL(`${siteUrl}/`).pathname).replace(/\/+$/, '');
 
   // dist/index.html is both the template and one of the outputs, so strip any
   // previously injected content to keep repeated runs idempotent.
@@ -182,7 +191,7 @@ async function main() {
   const lastmod = new Date().toISOString().slice(0, 10);
 
   for (const route of ROUTES) {
-    const html = renderPage(template, origin, SITE_NAME, route, ROUTES);
+    const html = renderPage(template, origin, SITE_NAME, route, ROUTES, basePath);
     const outDir = route.path === '/' ? distDir : path.join(distDir, route.path);
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'index.html'), html);
@@ -196,7 +205,8 @@ async function main() {
   );
   console.log(
     `\nwrote sitemap.xml and robots.txt for ${origin} ` +
-      `(canonical URLs ${TRAILING_SLASH ? 'end with' : 'omit'} a trailing slash)`,
+      `(base path "${basePath || '/'}", canonical URLs ` +
+      `${TRAILING_SLASH ? 'end with' : 'omit'} a trailing slash)`,
   );
 }
 

@@ -220,6 +220,33 @@ output directory `dist`.
 root page's title and copy for every URL and undo the whole point of the
 prerender step. A 404 fallback is fine; a catch-all rewrite is not.
 
+#### GitHub Pages
+
+`.github/workflows/deploy.yml` builds and publishes on every push to `main`.
+Enable it once under **Settings → Pages → Build and deployment → Source:
+GitHub Actions**.
+
+By default it publishes to `https://<owner>.github.io/<repo>/`. Because that is
+a subpath, the build needs a matching base path — the workflow derives it from
+the repository name, and `vite.config.ts` derives Vite's `base` from `SITE_URL`
+so the asset URLs, the canonical tags and the internal links cannot drift apart.
+
+To move to a custom domain, add it under **Settings → Pages → Custom domain**
+and set these repository variables (**Settings → Secrets and variables →
+Actions → Variables**):
+
+| Variable | Value |
+| --- | --- |
+| `SITE_URL` | `https://your-domain.com` |
+| `BASE_PATH` | `/` |
+| `TRAILING_SLASH` | `1` |
+
+Two caveats specific to project-page hosting. `robots.txt` is only honoured at a
+domain root, so on `<owner>.github.io/<repo>/` crawlers read the account-level
+file and ignore the one this build emits — a custom domain fixes that. And
+`public/_headers` does nothing on GitHub Pages, which does not support custom
+cache headers.
+
 #### Trailing slashes
 
 Static hosts disagree about how to serve `dist/foo/index.html`. Most serve it at

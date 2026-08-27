@@ -14,7 +14,7 @@ import { computeStats } from './lib/format';
 import { allContainerPaths, childEntries } from './lib/tree';
 import { DEFAULT_OPTIONS } from './lib/types';
 import type { ConvertOptions } from './lib/types';
-import { ROUTES, routeForPath } from './lib/routes';
+import { ROUTES, hrefFor, routeForPath } from './lib/routes';
 
 function useIsNarrow() {
   const [narrow, setNarrow] = useState(
@@ -38,9 +38,13 @@ function initialExpanded(value: unknown): Set<string> {
   return paths;
 }
 
+/** Vite injects the deployment base path it was built with. */
+const BASE_PATH = import.meta.env.BASE_URL;
+
 /** The static page this app was served from decides the starting mode. */
 const ACTIVE_ROUTE = routeForPath(
   typeof window === 'undefined' ? '/' : window.location.pathname,
+  BASE_PATH,
 );
 
 export default function App() {
@@ -291,7 +295,7 @@ export default function App() {
           {ROUTES.filter((route) => route.path !== ACTIVE_ROUTE.path).map((route) => (
             <a
               key={route.path}
-              href={route.path}
+              href={hrefFor(route.path, BASE_PATH)}
               className="underline underline-offset-2 hover:text-slate-800 dark:hover:text-slate-200"
             >
               {route.label}
