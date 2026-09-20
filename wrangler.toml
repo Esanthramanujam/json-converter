@@ -1,0 +1,8 @@
+name = "json-converter"
+compatibility_date = "2024-09-20"
+
+# Static prerendered site — upload dist as assets, skip framework auto-detection
+# (which requires Vite >=6). See: `npm run build` produces dist/.
+[assets]
+directory = "dist"
+not_found_handling = "single-page-application"
